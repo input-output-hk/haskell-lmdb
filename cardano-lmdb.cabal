@@ -33,7 +33,8 @@ library
                       , array
   build-tool-depends:   hsc2hs:hsc2hs
   exposed-modules:      Database.LMDB.Raw
-  pkgconfig-depends:    lmdb
+  -- pkgconfig-depends:    lmdb
+  extra-libraries:      lmdb
   ghc-options:          -Wall
                         -Wcompat
                         -Wincomplete-uni-patterns
