@@ -7,7 +7,7 @@ description:
   LMDB is a read-optimized Berkeley DB replacement developed by Symas
   for the OpenLDAP project. LMDB has impressive performance characteristics
   and a friendly BSD-style OpenLDAP license. See <http://symas.com/mdb/>.
-  .
+
   This library has Haskell bindings to the LMDB library. You must install
   the lmdb development files before installing this library,
   e.g. `sudo apt-get install liblmdb-dev` works for Ubuntu.

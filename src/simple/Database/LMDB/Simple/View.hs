@@ -88,7 +88,7 @@ size view = viewIO view $ \(txn, dbi) -> do
 -- | Is the key a member of the view? See also 'notMember'.
 member :: Serialise k => k -> View k v -> Bool
 member key view = viewIO view $ \(txn, dbi) ->
-  marshalOut key (fmap isJust . mdb_get' txn dbi kval)
+  marshalOut key (fmap isJust . mdb_get' txn dbi)
 
 -- | Is the key not a member of the view? See also 'member'.
 notMember :: Serialise k => k -> View k v -> Bool
