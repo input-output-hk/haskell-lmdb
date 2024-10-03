@@ -1,5 +1,5 @@
 
-module Main where
+module Main (main) where
 
 import Database.LMDB.Simple
 import Control.Monad (forM_)

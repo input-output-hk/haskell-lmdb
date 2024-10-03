@@ -1,8 +1,8 @@
-module Test.Database.LMDB.Simple.Cursor  where
+module Test.Database.LMDB.Simple.Cursor (tests) where
 
 import           Test.Tasty
 
-import           Test.Database.LMDB.Simple.Cursor.Lockstep as LS
+import qualified Test.Database.LMDB.Simple.Cursor.Lockstep as LS
 
 tests :: TestTree
 tests = testGroup "Cursor" [

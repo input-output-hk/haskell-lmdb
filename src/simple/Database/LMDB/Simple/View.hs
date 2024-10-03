@@ -109,7 +109,7 @@ newView :: Database k v -> IO (View k v)
 newView (Db env dbi) = do
   txn <- mdb_txn_begin env Nothing True
   var <- newMVar (txn, dbi)
-  mkWeakMVar var $ finalize var
+  _ <- mkWeakMVar var $ finalize var
   return (View var)
 
   where finalize :: MVar (MDB_txn, MDB_dbi') -> IO ()

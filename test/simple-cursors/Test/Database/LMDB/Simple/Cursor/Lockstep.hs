@@ -303,7 +303,7 @@ instance (Show k, Show v, Eq k, Eq v, Ord k, Typeable k, Typeable v
 -------------------------------------------------------------------------------}
 
 runMock ::
-     (Ord k, Eq v)
+     Ord k
   => ModelLookUp (CursorState k v)
   -> Action (Lockstep (CursorState k v)) a
   -> Mock k v
@@ -459,8 +459,7 @@ instance InterpretOp Op (ModelValue (CursorState k v)) where
 -------------------------------------------------------------------------------}
 
 runCM ::
-     (Serialise k, Serialise v)
-  => LockstepAction (CursorState k v) a
+     LockstepAction (CursorState k v) a
   -> LookUp (RealMonad k v mode)
   -> RealMonad k v ReadWrite (Realized (RealMonad k v mode) a)
 runCM act _lookUp = case act of
@@ -488,8 +487,7 @@ initStats :: Stats k v
 initStats = Stats
 
 updateStats ::
-     Ord k
-  => LockstepAction (CursorState k v) a
+     LockstepAction (CursorState k v) a
   -> CursorVal k v a
   -> Stats k v
   -> Stats k v
@@ -499,8 +497,7 @@ data Tag = Tag
   deriving (Show, Eq)
 
 tagCursorAction ::
-     (Show k, Show v, Ord k)
-  => Stats k v
+     Stats k v
   -> LockstepAction (CursorState k v) a
   -> ModelValue (CursorState k v) a
   -> [Tag]

@@ -92,13 +92,13 @@ data CursorEnv k v = CursorEnv {
     --
     -- An LMDB cursor points to an entry in the database. We can read/write on
     -- on this cursor, or move the cursor to different entries in the database.
-    cursor :: MDB_cursor'
+    theCursor    :: MDB_cursor'
     -- | A pointer that can hold a key.
-  , kPtr   :: Ptr MDB_val
+  , cursorKPtr   :: Ptr MDB_val
     -- | A pointer that can hold a value.
-  , vPtr   :: Ptr MDB_val
+  , cursorVPtr   :: Ptr MDB_val
     -- | Record of functions for peeking/poking pointers to keys and values.
-  , pp     :: PeekPoke k v
+  , cursorPp     :: PeekPoke k v
   }
 
 -- | Record of functions for peeking/poking pointers to keys and values.
@@ -109,10 +109,10 @@ data CursorEnv k v = CursorEnv {
 -- @'Serialise' v@ instances. See @'runCursorTransaction'@ and
 -- @'runCursorTransaction''@.
 data PeekPoke k v = PeekPoke {
-    kPeek :: Ptr MDB_val -> IO k
-  , vPeek :: Ptr MDB_val -> IO v
-  , kPoke :: Ptr MDB_val -> k -> IO ()
-  , vPoke :: Ptr MDB_val -> v -> IO ()
+    ppKPeek :: Ptr MDB_val -> IO k
+  , ppVPeek :: Ptr MDB_val -> IO v
+  , ppKPoke :: Ptr MDB_val -> k -> IO ()
+  , ppVPoke :: Ptr MDB_val -> v -> IO ()
   }
 
 -- | The cursor monad is a @'ReaderT'@ transformer on top of @'IO'@.
@@ -141,10 +141,10 @@ runCursorAsTransaction cm (Db _ dbi) = Txn $ \txn ->
         withCursor txn dbi (\c -> runReaderT (unCursorM cm) (CursorEnv c kptr vptr pp))
   where
     pp = PeekPoke {
-        kPeek = peekMDBVal
-      , vPeek = peekMDBVal
-      , kPoke = pokeMDBVal
-      , vPoke = pokeMDBVal
+        ppKPeek = peekMDBVal
+      , ppVPeek = peekMDBVal
+      , ppKPoke = pokeMDBVal
+      , ppVPoke = pokeMDBVal
       }
 
 -- | Alternative runner for running a cursor monad as a @'Transaction'@.
@@ -175,29 +175,29 @@ type CursorConstraints m k v mode = (
 -- | Read the key at the key pointer.
 cpeekKey :: CursorConstraints m k v mode => m mode k
 cpeekKey = do
-  kPeek <- asks (kPeek . pp)
-  kPtr <- asks kPtr
+  kPeek <- asks (ppKPeek . cursorPp)
+  kPtr <- asks cursorKPtr
   liftIO $ kPeek kPtr
 
 -- | Read the value at the value pointer.
 cpeekValue :: CursorConstraints m k v mode => m mode v
 cpeekValue = do
-  vPeek <- asks (vPeek . pp)
-  vPtr <- asks vPtr
+  vPeek <- asks (ppVPeek . cursorPp)
+  vPtr <- asks cursorVPtr
   liftIO $ vPeek vPtr
 
 -- | Write a key at the key pointer.
 cpokeKey :: CursorConstraints m k v mode => k -> m mode ()
 cpokeKey k = do
-  kPoke <- asks (kPoke . pp)
-  kPtr <- asks kPtr
+  kPoke <- asks (ppKPoke . cursorPp)
+  kPtr <- asks cursorKPtr
   liftIO $ kPoke kPtr k
 
 -- | Write a value at the value pointer.
 cpokeValue :: CursorConstraints m k v mode => v -> m mode ()
 cpokeValue v = do
-  vPoke <- asks (vPoke . pp)
-  vPtr <- asks vPtr
+  vPoke <- asks (ppVPoke . cursorPp)
+  vPtr <- asks cursorVPtr
   liftIO $ vPoke vPtr v
 
 {-------------------------------------------------------------------------------
@@ -228,7 +228,7 @@ errCursorOpNotSupported op =
 cgetG :: CursorConstraints m k v mode => MDB_cursor_op -> m mode (Maybe (k, v))
 cgetG op = do
   r <- ask
-  found <- liftIO $ mdb_cursor_get' op (cursor r) (kPtr r) (vPtr r)
+  found <- liftIO $ mdb_cursor_get' op (theCursor r) (cursorKPtr r) (cursorVPtr r)
   if found then do
     k <- cpeekKey
     v <- cpeekValue
@@ -351,7 +351,7 @@ cputG flag k v = do
   cpokeKey k
   cpokeValue v
   liftIO $
-    mdb_cursor_put_ptr' (compileCPutFlag flag) (cursor r) (kPtr r) (vPtr r)
+    mdb_cursor_put_ptr' (compileCPutFlag flag) (theCursor r) (cursorKPtr r) (cursorVPtr r)
 
 cput ::
      CursorConstraints m k v ReadWrite
@@ -418,8 +418,8 @@ compileCDelFlag = compileWriteFlags . toList . fmap fromCDelFlag
 cdelG :: CursorConstraints m k v ReadWrite => Maybe CDelFlag -> m ReadWrite ()
 cdelG flag = do
   r <- ask
-  if kPtr r == nullPtr then error "e" else pure ()
-  liftIO $ mdb_cursor_del' (compileCDelFlag flag) (cursor r)
+  if cursorKPtr r == nullPtr then error "e" else pure ()
+  liftIO $ mdb_cursor_del' (compileCDelFlag flag) (theCursor r)
 
 cdel :: CursorConstraints m k v ReadWrite => m ReadWrite ()
 cdel = cdelG Nothing

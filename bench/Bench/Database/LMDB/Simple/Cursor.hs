@@ -10,7 +10,6 @@
 module Bench.Database.LMDB.Simple.Cursor (benchmarks) where
 
 import           Codec.Serialise
-import           Control.DeepSeq             (NFData)
 import           Data.Map.Strict             (Map)
 import qualified Data.Map.Strict             as Map
 import           Text.Printf
@@ -53,7 +52,7 @@ benchmarks = bgroup "Cursor" [
 
 -- | Benchmark a @'cgetMany'@ cursor transaction.
 bench_cgetMany ::
-     (Serialise k, Serialise v, Ord k, NFData k, NFData v)
+     (Serialise k, Serialise v, Ord k)
   => BenchEnv k v -> k -> Int -> Benchmark
 bench_cgetMany bEnv k n =
   bench (name_cgetMany bEnv k n) $

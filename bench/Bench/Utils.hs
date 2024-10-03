@@ -67,7 +67,7 @@ instance NFData (BenchEnv k v) where
 -------------------------------------------------------------------------------}
 
 initBenchEnv ::
-     (MonadIO m, Serialise k, Serialise v, Arbitrary k, Arbitrary v)
+     MonadIO m
   => Proxy k
   -> Proxy v
   -> Limits

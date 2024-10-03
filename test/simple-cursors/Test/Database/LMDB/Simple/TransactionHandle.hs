@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Test.Database.LMDB.Simple.TransactionHandle where
+module Test.Database.LMDB.Simple.TransactionHandle (tests) where
 
 import           System.IO.Temp
 

@@ -156,15 +156,15 @@ insertWithKey f key value = void . insertLookupWithKey f key value
 insertLookupWithKey :: (Serialise k, Serialise v)
                     => (k -> v -> v -> v) -> k -> v -> Database k v
                     -> Transaction ReadWrite (Maybe v)
-insertLookupWithKey f key value (Db _ dbi) = Txn $ \txn ->
+insertLookupWithKey f key value0 (Db _ dbi) = Txn $ \txn ->
   withCursor txn dbi $ \cursor -> marshalOut key $ \kval ->
   with kval $ \kptr -> alloca $ \vptr -> do
     found <- mdb_cursor_get' MDB_SET cursor kptr vptr
     if found
       then do oldValue <- peekMDBVal vptr
-              cursorPut cursor overwriteFlags kval (f key value oldValue)
+              _ <- cursorPut cursor overwriteFlags kval (f key value0 oldValue)
               return (Just oldValue)
-      else do cursorPut cursor defaultWriteFlags kval value
+      else do _ <- cursorPut cursor defaultWriteFlags kval value0
               return  Nothing
 
   where cursorPut :: Serialise v

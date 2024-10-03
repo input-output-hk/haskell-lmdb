@@ -105,6 +105,8 @@ import Database.LMDB.Raw
   , compileWriteFlags
   )
 
+import Prelude hiding (rem)
+
 import Foreign
   ( Ptr
   , castPtr
@@ -225,8 +227,8 @@ marshalOutBS bs f =
   f $ MDB_val (fromIntegral len) (castPtr ptr)
 
 copyLazyBS :: BSL.ByteString -> Ptr Word8 -> Int -> IO ()
-copyLazyBS lbs ptr rem =
-  foldM copyBS (castPtr ptr, rem) (toChunks lbs) >>= \case
+copyLazyBS lbs ptr0 rem0 =
+  foldM copyBS (castPtr ptr0, rem0) (toChunks lbs) >>= \case
       (_, 0) -> return ()
       (_, i) -> error ("Incomplete lazy bytestring copying, remaining bytes: " ++ show i)
 
@@ -238,8 +240,8 @@ copyLazyBS lbs ptr rem =
 forEach :: MDB_cursor_op -> MDB_cursor_op
         -> MDB_txn -> MDB_dbi' -> Ptr MDB_val -> Ptr MDB_val
         -> a -> (IO a -> IO a) -> IO a
-forEach first next txn dbi kptr vptr acc f =
-  withCursor txn dbi $ cursorGet first acc
+forEach first next txn dbi kptr vptr acc0 f =
+  withCursor txn dbi $ cursorGet first acc0
 
   where cursorGet op acc cursor = do
           found <- mdb_cursor_get' op cursor kptr vptr

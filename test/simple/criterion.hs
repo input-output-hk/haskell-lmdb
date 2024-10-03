@@ -6,10 +6,10 @@
 
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Main where
+module Main (main) where
 
 import Control.DeepSeq
-import Criterion.Main
+import Criterion.Main hiding (env)
 import Database.LMDB.Simple
 import Database.LMDB.Simple.Internal (Environment (..), Database (..))
 import Database.LMDB.Raw

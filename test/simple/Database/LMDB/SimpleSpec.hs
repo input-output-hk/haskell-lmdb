@@ -59,6 +59,5 @@ spec = beforeAll (setup "SimpleSpec") $ afterAll tearDown $ do
 
     it "commits nested transactions" $ \(env, db, _) ->
       transaction env
-      ( do nestTransaction (put db 3 $ Just "three")
-           get db 3
+      ( nestTransaction (put db 3 $ Just "three") >> get db 3
       ) `shouldReturn` Just "three"
