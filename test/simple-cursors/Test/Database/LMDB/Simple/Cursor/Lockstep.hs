@@ -276,7 +276,7 @@ deriving stock instance (Eq k, Eq v) => Eq (CursorObs k v a)
   @'RunLockstep'@ instance
 -------------------------------------------------------------------------------}
 
-instance (Show k, Show v, Eq k, Eq v, Ord k, Typeable k, Typeable v
+instance (Show k, Show v, Eq v, Ord k, Typeable k, Typeable v
          , Arbitrary k, Arbitrary v, Serialise k, Serialise v)
       => RunLockstep (CursorState k v) (RealMonad k v ReadWrite) where
   observeReal ::
