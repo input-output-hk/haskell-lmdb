@@ -1,17 +1,15 @@
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds        #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Test.Database.LMDB.Simple.TransactionHandle (tests) where
 
+import           Database.LMDB.Simple
+import           Database.LMDB.Simple.TransactionHandle
 import           System.IO.Temp
-
 import           Test.QuickCheck
 import           Test.QuickCheck.Monadic
 import           Test.Tasty
 import           Test.Tasty.QuickCheck
-
-import           Database.LMDB.Simple
-import           Database.LMDB.Simple.TransactionHandle
 
 tests :: TestTree
 tests = testGroup "TransactionHandle" [

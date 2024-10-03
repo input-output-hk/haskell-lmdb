@@ -52,10 +52,8 @@ module Database.LMDB.Simple.TransactionHandle (
 
 import           Control.Concurrent.MVar
 import           Control.Monad
-
 import           Data.Kind
 import           Data.Proxy
-
 import           Database.LMDB.Raw
 import           Database.LMDB.Simple.Internal
 

@@ -1,12 +1,10 @@
 {-# LANGUAGE TupleSections #-}
 
-module Database.LMDB.Simple.DBRefSpec
-  ( spec
-  ) where
+module Database.LMDB.Simple.DBRefSpec (spec) where
 
-import Database.LMDB.Simple.DBRef
-import Harness
-import Test.Hspec
+import           Database.LMDB.Simple.DBRef
+import           Harness
+import           Test.Hspec
 
 spec :: Spec
 spec = beforeAll (setup "DBRefSpec" >>= \(env, db, cleanup) -> (env,,cleanup) <$> newDBRef env db 0) $

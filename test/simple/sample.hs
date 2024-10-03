@@ -1,9 +1,9 @@
 
 module Main (main) where
 
-import Database.LMDB.Simple
-import Control.Monad (forM_)
-import System.IO.Temp
+import           Control.Monad (forM_)
+import           Database.LMDB.Simple
+import           System.IO.Temp
 
 main :: IO ()
 main = withSystemTempDirectory "sample" $ \tmpDir -> do

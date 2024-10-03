@@ -3,93 +3,53 @@
 -- | This module exports many functions for querying and modifying LMDB
 -- databases using common idioms (albeit in monadic form).
 
-module Database.LMDB.Simple.Extra
-  ( -- * Query
-    null
-  , size
+module Database.LMDB.Simple.Extra (
+    -- * Query
+    findWithDefault
+  , lookup
   , member
   , notMember
-  , lookup
-  , findWithDefault
-
+  , null
+  , size
     -- * Modification
-
     -- ** Insertion
   , insert
+  , insertLookupWithKey
   , insertWith
   , insertWithKey
-  , insertLookupWithKey
-
     -- ** Delete/Update
-  , delete
   , adjust
   , adjustWithKey
-  , update
-  , updateWithKey
-  , updateLookupWithKey
   , alter
-
+  , delete
+  , update
+  , updateLookupWithKey
+  , updateWithKey
     -- * Folds
-  , foldr
-  , foldl
-  , foldrWithKey
-  , foldlWithKey
   , foldDatabaseWithKey
-
+  , foldl
+  , foldlWithKey
+  , foldr
+  , foldrWithKey
     -- * Conversion
   , elems
   , keys
   , toList
   ) where
 
-import Prelude hiding
-  ( foldl
-  , foldr
-  , lookup
-  , null
-  )
-
-import Control.Monad
-  ( void
-  )
-
-import Data.Maybe
-  ( fromMaybe
-  , isJust
-  )
-
-import Database.LMDB.Raw
-  ( MDB_stat (ms_entries)
-  , MDB_val
-  , MDB_cursor_op (MDB_SET)
-  , MDB_cursor'
-  , MDB_WriteFlags
-  , mdb_stat'
-  , mdb_cursor_get'
-  , mdb_cursor_put'
-  , mdb_cursor_del'
-  )
-
-import Database.LMDB.Simple.Internal
-  ( Mode (ReadWrite)
-  , Transaction (Txn)
-  , Database (Db)
-  , Serialise
-  , forEachForward
-  , forEachReverse
-  , marshalOut
-  , peekMDBVal
-  , withCursor
-  , defaultWriteFlags
-  , overwriteFlags
-  )
+import           Control.Monad (void)
+import           Data.Maybe (fromMaybe, isJust)
+import           Database.LMDB.Raw (MDB_WriteFlags, MDB_cursor',
+                     MDB_cursor_op (MDB_SET), MDB_stat (ms_entries), MDB_val,
+                     mdb_cursor_del', mdb_cursor_get', mdb_cursor_put',
+                     mdb_stat')
+import           Database.LMDB.Simple.Internal (Database (Db), Mode (ReadWrite),
+                     Serialise, Transaction (Txn), defaultWriteFlags,
+                     forEachForward, forEachReverse, marshalOut, overwriteFlags,
+                     peekMDBVal, withCursor)
 import qualified Database.LMDB.Simple.Internal as Internal
-
-import Foreign
-  ( alloca
-  , nullPtr
-  , with
-  )
+import           Foreign (alloca, nullPtr, with)
+import           Prelude hiding (foldl, foldr, lookup, null)
 
 -- | Lookup the value at a key in the database.
 --

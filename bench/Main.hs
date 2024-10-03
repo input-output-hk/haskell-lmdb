@@ -1,8 +1,7 @@
 module Main (main) where
 
-import           Test.Tasty.Bench
-
 import           Bench.Database.LMDB.Simple.Cursor as Cursor
+import           Test.Tasty.Bench
 
 main :: IO ()
 main = defaultMain [

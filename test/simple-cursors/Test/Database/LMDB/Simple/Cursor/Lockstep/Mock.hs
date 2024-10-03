@@ -10,15 +10,15 @@
 
 module Test.Database.LMDB.Simple.Cursor.Lockstep.Mock (
     -- * Types
-    Mock (..)
-  , emptyMock
-  , COp (..)
+    COp (..)
   , Err (..)
+  , Mock (..)
+  , emptyMock
     -- * Mocked cursor monad
   , MC (..)
+  , MCC
   , runMC
   , unsafeEvalMC
-  , MCC
     -- * Mock cursor operations: get
   , mCursorGet
   , mCursorGetSet
@@ -41,9 +41,8 @@ import           Control.Monad.Except
 import           Control.Monad.Identity
 import           Control.Monad.State.Class
 import           Control.Monad.State.Strict
-import           Data.Map.Strict             (Map)
-import qualified Data.Map.Strict             as Map
-
+import           Data.Map.Strict (Map)
+import qualified Data.Map.Strict as Map
 import           Database.LMDB.Raw
 import           Database.LMDB.Simple.Cursor
 

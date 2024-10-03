@@ -1,13 +1,11 @@
 
-module Database.LMDB.SimpleSpec
-  ( spec
-  ) where
+module Database.LMDB.SimpleSpec (spec) where
 
-import Control.Monad (forM, forM_)
-import Database.LMDB.Simple
-import Database.LMDB.Simple.Extra
-import Harness
-import Test.Hspec
+import           Control.Monad (forM, forM_)
+import           Database.LMDB.Simple
+import           Database.LMDB.Simple.Extra
+import           Harness
+import           Test.Hspec
 
 spec :: Spec
 spec = beforeAll (setup "SimpleSpec") $ afterAll tearDown $ do

@@ -25,10 +25,10 @@ module Database.LMDB.Simple.Cursor (
   , cpokeValue
     -- * Basic monadic cursor operations: get
   , MDB_cursor_op (..)
+  , cgetCurrent
+  , cgetFirst
   , cgetG
   , cgetG_
-  , cgetFirst
-  , cgetCurrent
   , cgetLast
   , cgetNext
   , cgetNextNoDup
@@ -39,41 +39,39 @@ module Database.LMDB.Simple.Cursor (
   , cgetSetRange
     -- * Basic monadic cursor operations: put
   , CPutFlag (..)
-  , cputG
   , cput
-  , cputCurrent
-  , cputNoOverwrite
   , cputAppend
+  , cputCurrent
+  , cputG
+  , cputNoOverwrite
     -- * Basic monadic cursor operations: delete
   , CDelFlag (..)
-  , cdelG
   , cdel
+  , cdelG
     -- * Cursor folds
   , Bound (..)
   , FoldRange (..)
-  , forEach
-  , forEachBackward
-  , forEachForward
   , cfoldM
   , cgetAll
   , cgetMany
+  , forEach
+  , forEachBackward
+  , forEachForward
   ) where
 
 import           Codec.Serialise
-import           Control.Monad                 (foldM, void, when)
-import           Control.Monad.Catch           (MonadCatch, MonadThrow)
-import           Control.Monad.IO.Class        (MonadIO (..))
-import           Control.Monad.Reader          (MonadReader (..), ReaderT (..),
-                                                asks)
+import           Control.Monad (foldM, void, when)
+import           Control.Monad.Catch (MonadCatch, MonadThrow)
+import           Control.Monad.IO.Class (MonadIO (..))
+import           Control.Monad.Reader (MonadReader (..), ReaderT (..), asks)
 import           Data.Foldable
 import           Data.Kind
-import           Data.Map.Strict               (Map)
-import qualified Data.Map.Strict               as Map
-import           Foreign                       (Ptr, alloca, nullPtr)
-
+import           Data.Map.Strict (Map)
+import qualified Data.Map.Strict as Map
 import           Database.LMDB.Raw
 import           Database.LMDB.Simple.Internal hiding (forEachForward,
-                                                forEachReverse, get, put)
+                     forEachReverse, get, put)
+import           Foreign (Ptr, alloca, nullPtr)
 
 {-------------------------------------------------------------------------------
   The Cursor monad
@@ -92,13 +90,13 @@ data CursorEnv k v = CursorEnv {
     --
     -- An LMDB cursor points to an entry in the database. We can read/write on
     -- on this cursor, or move the cursor to different entries in the database.
-    theCursor    :: MDB_cursor'
+    theCursor  :: MDB_cursor'
     -- | A pointer that can hold a key.
-  , cursorKPtr   :: Ptr MDB_val
+  , cursorKPtr :: Ptr MDB_val
     -- | A pointer that can hold a value.
-  , cursorVPtr   :: Ptr MDB_val
+  , cursorVPtr :: Ptr MDB_val
     -- | Record of functions for peeking/poking pointers to keys and values.
-  , cursorPp     :: PeekPoke k v
+  , cursorPp   :: PeekPoke k v
   }
 
 -- | Record of functions for peeking/poking pointers to keys and values.

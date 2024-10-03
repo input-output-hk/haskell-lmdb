@@ -4,42 +4,22 @@
 -- concept to 'Data.IORef.IORef' except that it is tied to a particular key
 -- that persists in an LMDB database.
 
-module Database.LMDB.Simple.DBRef
-  ( DBRef
+module Database.LMDB.Simple.DBRef (
+    DBRef
+  , modifyDBRef
+  , modifyDBRef_
   , newDBRef
   , readDBRef
   , writeDBRef
-  , modifyDBRef_
-  , modifyDBRef
   ) where
 
-import Control.Monad
-  ( void
-  )
-
-import Data.ByteString
-  ( ByteString
-  )
-
-import Database.LMDB.Raw
-  ( MDB_dbi'
-  )
-
-import Database.LMDB.Simple
-  ( transaction
-  )
-
-import Database.LMDB.Simple.Internal
-  ( Environment (..)
-  , Transaction (..)
-  , Database (..)
-  , Mode (..)
-  , Serialise
-  , serialiseBS
-  , getBS
-  , putBS
-  , deleteBS
-  )
+import           Control.Monad (void)
+import           Data.ByteString (ByteString)
+import           Database.LMDB.Raw (MDB_dbi')
+import           Database.LMDB.Simple (transaction)
+import           Database.LMDB.Simple.Internal (Database (..), Environment (..),
+                     Mode (..), Serialise, Transaction (..), deleteBS, getBS,
+                     putBS, serialiseBS)
 
 -- | A 'DBRef' is a reference to a particular key within an LMDB database. It
 -- may be empty ('Nothing') if the key does not currently exist in the

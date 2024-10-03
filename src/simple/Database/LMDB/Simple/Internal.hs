@@ -1,120 +1,69 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE LambdaCase   #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE CPP                      #-}
+{-# LANGUAGE DataKinds                #-}
+{-# LANGUAGE LambdaCase               #-}
+{-# LANGUAGE Rank2Types               #-}
+{-# LANGUAGE ScopedTypeVariables      #-}
 {-# LANGUAGE StandaloneKindSignatures #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE TypeApplications         #-}
+{-# LANGUAGE TypeFamilies             #-}
+{-# LANGUAGE TypeOperators            #-}
 
-module Database.LMDB.Simple.Internal
-  ( Mode (..)
-  , IsMode (..)
-  , SubMode
+module Database.LMDB.Simple.Internal (
+    Database (..)
   , Environment (..)
-  , Transaction (..)
-  , Database (..)
+  , IsMode (..)
+  , Mode (..)
   , Serialise
-  , isReadOnlyEnvironment
-  , isReadOnlyTransaction
-  , isReadWriteTransaction
-  , serialiseBS
-  , marshalOut
-  , marshalOutBS
+  , SubMode
+  , Transaction (..)
   , copyLazyBS
-  , marshalIn
-  , peekMDBVal
-  , pokeMDBVal
+  , defaultWriteFlags
+  , delete
+  , deleteBS
   , forEachForward
   , forEachReverse
-  , withCursor
-  , defaultWriteFlags
-  , overwriteFlags
   , get
   , get'
   , getBS
   , getBS'
+  , isReadOnlyEnvironment
+  , isReadOnlyTransaction
+  , isReadWriteTransaction
+  , marshalIn
+  , marshalOut
+  , marshalOutBS
+  , overwriteFlags
+  , peekMDBVal
+  , pokeMDBVal
   , put
   , putBS
   , putNoOverwrite
-  , delete
-  , deleteBS
+  , serialiseBS
+  , withCursor
   ) where
 
-import Codec.Serialise
-  ( Serialise
-  , serialise
-  , deserialise
-  )
-
-import Control.Exception
-  ( assert
-  , bracket
-  )
-
-import Control.Monad
-  ( (>=>)
-  , foldM
-  )
-
-import Control.Monad.IO.Class
-  ( MonadIO (liftIO)
-  )
-
-import Data.ByteString
-  ( packCStringLen
-  )
+import           Codec.Serialise (Serialise, deserialise, serialise)
+import           Control.Exception (assert, bracket)
+import           Control.Monad (foldM, (>=>))
+import           Control.Monad.IO.Class (MonadIO (liftIO))
+import           Data.ByteString (packCStringLen)
 import qualified Data.ByteString as BS
-
-import Data.ByteString.Unsafe
-  ( unsafeUseAsCStringLen
-  )
-
-import Data.ByteString.Lazy
-  ( toChunks
-  , toStrict
-  , fromStrict
-  )
+import           Data.ByteString.Lazy (fromStrict, toChunks, toStrict)
 import qualified Data.ByteString.Lazy as BSL
-
-import Data.Kind (Type, Constraint)
-
-import Data.Proxy (Proxy (..))
-
-import Data.Word
-  ( Word8
-  )
-
-import Database.LMDB.Raw
-  ( MDB_env
-  , MDB_txn
-  , MDB_dbi'
-  , MDB_val (MDB_val)
-  , MDB_cursor'
-  , MDB_cursor_op (MDB_FIRST, MDB_LAST, MDB_NEXT, MDB_PREV)
-  , MDB_WriteFlag (MDB_CURRENT, MDB_NOOVERWRITE)
-  , MDB_WriteFlags
-  , mdb_cursor_open'
-  , mdb_cursor_close'
-  , mdb_cursor_get'
-  , mdb_get'
-  , mdb_put'
-  , mdb_reserve'
-  , mdb_del'
-  , compileWriteFlags
-  )
-
-import Prelude hiding (rem)
-
-import Foreign
-  ( Ptr
-  , castPtr
-  , peek
-  , poke
-  , plusPtr
-  , copyBytes
-  )
+import           Data.ByteString.Unsafe (unsafeUseAsCStringLen)
+import           Data.Kind (Constraint, Type)
+import           Data.Proxy (Proxy (..))
+import           Data.Word (Word8)
+import           Database.LMDB.Raw
+                     (MDB_WriteFlag (MDB_CURRENT, MDB_NOOVERWRITE),
+                     MDB_WriteFlags, MDB_cursor',
+                     MDB_cursor_op (MDB_FIRST, MDB_LAST, MDB_NEXT, MDB_PREV),
+                     MDB_dbi', MDB_env, MDB_txn, MDB_val (MDB_val),
+                     compileWriteFlags, mdb_cursor_close', mdb_cursor_get',
+                     mdb_cursor_open', mdb_del', mdb_get', mdb_put',
+                     mdb_reserve')
+import           Foreign (Ptr, castPtr, copyBytes, peek, plusPtr, poke)
+import           Prelude hiding (rem)
 
 -- | Modes of operation for 'Environment's and 'Transaction's.
 --

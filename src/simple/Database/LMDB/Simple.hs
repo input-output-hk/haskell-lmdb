@@ -1,8 +1,8 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE ConstraintKinds     #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE DerivingStrategies  #-}
+{-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE RankNTypes #-}
 
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
@@ -49,113 +49,62 @@ These additional APIs are available:
     'IO') that is tied to a particular key that persists in an LMDB database
 -}
 
-module Database.LMDB.Simple
-  ( -- * Environments
+module Database.LMDB.Simple (
+    -- * Environments
     Environment
   , Limits (..)
-  , defaultLimits
-  , openEnvironment
+  , clearStaleReaders
   , closeEnvironment
   , closeEnvironmentBlocking
-  , openReadWriteEnvironment
-  , openReadOnlyEnvironment
-  , readOnlyEnvironment
-  , clearStaleReaders
   , copyEnvironment
+  , defaultLimits
   , getPathEnvironment
-
+  , openEnvironment
+  , openReadOnlyEnvironment
+  , openReadWriteEnvironment
+  , readOnlyEnvironment
     -- * Transactions
-  , Transaction
-  , transaction
-  , readWriteTransaction
-  , readOnlyTransaction
-  , nestTransaction
-  , abort
   , AbortedTransaction
+  , Transaction
+  , abort
+  , nestTransaction
+  , readOnlyTransaction
+  , readWriteTransaction
+  , transaction
   , transactionWithRunInIO
-
     -- * Databases
   , Database
-  , getDatabase
-  , get
-  , put
   , clear
-
+  , get
+  , getDatabase
+  , put
     -- * Access modes
   , Mode (..)
   , SubMode
   ) where
 
-import Control.Concurrent.Async
-  ( withAsyncBound
-  , wait
-  )
-
-import Control.Concurrent.MVar
-
-import Control.Exception
-  ( SomeException
-  , Exception
-  , throwIO
-  , try
-  , tryJust
-  , bracketOnError
-  )
-
+import           Control.Concurrent.Async (wait, withAsyncBound)
+import           Control.Concurrent.MVar
+import           Control.Exception (Exception, SomeException, bracketOnError,
+                     throwIO, try, tryJust)
 import qualified Control.Exception as EUnsafe
-
-import Control.Monad
-  ( guard
-  , void
-  )
-
-import Control.Monad.IO.Unlift
-  ( MonadUnliftIO (..)
-  )
-
-import Data.Coerce
-  ( coerce
-  )
-
-import Database.LMDB.Raw
-  ( LMDB_Error (LMDB_Error, e_code)
-  , MDB_EnvFlag (MDB_NOSUBDIR, MDB_RDONLY)
-  , MDB_DbFlag (MDB_CREATE)
-  , mdb_env_create
-  , mdb_env_close
-  , mdb_env_copy
-  , mdb_env_get_path
-  , mdb_env_open
-  , mdb_env_set_mapsize
-  , mdb_env_set_maxdbs
-  , mdb_env_set_maxreaders
-  , mdb_dbi_open'
-  , mdb_txn_begin
-  , mdb_txn_commit
-  , mdb_txn_abort
-  , mdb_txn_env
-  , mdb_clear'
-  , mdb_reader_check
-  )
-
-import Database.LMDB.Simple.Internal
-  ( Mode (..)
-  , IsMode
-  , SubMode
-  , Environment (Env)
-  , Transaction (Txn)
-  , Database (Db)
-  , Serialise
-  , isReadOnlyEnvironment
-  , isReadOnlyTransaction
-  , isReadWriteTransaction
-  )
+import           Control.Monad (guard, void)
+import           Control.Monad.IO.Unlift (MonadUnliftIO (..))
+import           Data.Coerce (coerce)
+import           Database.LMDB.Raw (LMDB_Error (LMDB_Error, e_code),
+                     MDB_DbFlag (MDB_CREATE),
+                     MDB_EnvFlag (MDB_NOSUBDIR, MDB_RDONLY), mdb_clear',
+                     mdb_dbi_open', mdb_env_close, mdb_env_copy, mdb_env_create,
+                     mdb_env_get_path, mdb_env_open, mdb_env_set_mapsize,
+                     mdb_env_set_maxdbs, mdb_env_set_maxreaders,
+                     mdb_reader_check, mdb_txn_abort, mdb_txn_begin,
+                     mdb_txn_commit, mdb_txn_env)
+import           Database.LMDB.Simple.Internal (Database (Db),
+                     Environment (Env), IsMode, Mode (..), Serialise, SubMode,
+                     Transaction (Txn), isReadOnlyEnvironment,
+                     isReadOnlyTransaction, isReadWriteTransaction)
 import qualified Database.LMDB.Simple.Internal as Internal
-
-import Foreign.C
-  ( Errno (Errno)
-  , eNOTDIR
-  )
+import           Foreign.C (Errno (Errno), eNOTDIR)
 
 -- | Like UnliftIO.Exception.bracket but allows different actions on exception
 -- vs normal return.

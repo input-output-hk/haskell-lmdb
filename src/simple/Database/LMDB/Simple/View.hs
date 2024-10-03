@@ -11,92 +11,45 @@ automatically when the 'View' is garbage collected, but the timing is not
 guaranteed.
 -}
 
-module Database.LMDB.Simple.View
-  ( -- * Creating
+module Database.LMDB.Simple.View (
+    -- * Creating
     View
   , newView
-
     -- * Operators
   , (!)
   , (!?)
-
     -- * Query
-  , null
-  , size
+  , findWithDefault
+  , lookup
   , member
   , notMember
-  , lookup
-  , findWithDefault
-
+  , null
+  , size
     -- * Folds
-  , foldr
-  , foldl
-  , foldrWithKey
-  , foldlWithKey
   , foldViewWithKey
-
+  , foldl
+  , foldlWithKey
+  , foldr
+  , foldrWithKey
     -- * Conversion
   , elems
   , keys
   , toList
   ) where
 
-import Prelude hiding
-  ( foldl
-  , foldr
-  , lookup
-  , null
-  )
-
-import Control.Concurrent.MVar
-  ( MVar
-  , newMVar
-  , mkWeakMVar
-  , takeMVar
-  , tryReadMVar
-  )
-
-import Control.Monad
-  ( (>=>)
-  )
-
-import Database.LMDB.Raw
-  ( MDB_txn
-  , MDB_dbi'
-  , mdb_txn_begin
-  , mdb_txn_commit
-  , mdb_get'
-  , mdb_stat'
-  , ms_entries
-  )
-
-import Database.LMDB.Simple
-  ( Database
-  )
-
-import Database.LMDB.Simple.Internal
-  ( Database (Db)
-  , Serialise
-  , forEachForward
-  , forEachReverse
-  , marshalOut
-  , marshalIn
-  , peekMDBVal
-  )
-
-import Data.Maybe
-  ( fromMaybe
-  , isJust
-  )
-
-import Foreign
-  ( alloca
-  , nullPtr
-  )
-
-import System.IO.Unsafe
-  ( unsafePerformIO
-  )
+import           Control.Concurrent.MVar (MVar, mkWeakMVar, newMVar, takeMVar,
+                     tryReadMVar)
+import           Control.Monad ((>=>))
+import           Data.Maybe (fromMaybe, isJust)
+import           Database.LMDB.Raw (MDB_dbi', MDB_txn, mdb_get', mdb_stat',
+                     mdb_txn_begin, mdb_txn_commit, ms_entries)
+import           Database.LMDB.Simple (Database)
+import           Database.LMDB.Simple.Internal (Database (Db), Serialise,
+                     forEachForward, forEachReverse, marshalIn, marshalOut,
+                     peekMDBVal)
+import           Foreign (alloca, nullPtr)
+import           Prelude hiding (foldl, foldr, lookup, null)
+import           System.IO.Unsafe (unsafePerformIO)
 
 -- | A 'View' behaves much like a 'Data.Map.Map', except in the way it is
 -- created. A @'View' k v@ maps keys @k@ to values @v@.

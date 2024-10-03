@@ -17,39 +17,33 @@
 
 module Test.Database.LMDB.Simple.Cursor.Lockstep (tests) where
 
-import           Prelude                                        hiding (init)
-
-import           Control.Exception                              ()
-import           Control.Monad                                  ((<=<))
-import           Control.Monad.Catch                            (MonadCatch (..),
-                                                                 MonadThrow (..))
+import           Control.Exception ()
+import           Control.Monad ((<=<))
+import           Control.Monad.Catch (MonadCatch (..), MonadThrow (..))
 import           Control.Monad.IO.Class
 import           Data.Bifunctor
-import qualified Data.Map.Strict                                as Map
+import qualified Data.Map.Strict as Map
 import           Data.Maybe
 import           Data.Proxy
 import           Data.Typeable
-import           System.Directory
-import           System.IO.Temp
-
-import qualified Test.QuickCheck                                as QC
-import           Test.QuickCheck                                (Arbitrary, Gen,
-                                                                 Property)
-import           Test.QuickCheck.StateModel
-import           Test.QuickCheck.StateModel.Lockstep            as Lockstep
-import           Test.QuickCheck.StateModel.Lockstep.Defaults   as Lockstep
-import           Test.QuickCheck.StateModel.Lockstep.Op.SumProd as Lockstep
-import           Test.QuickCheck.StateModel.Lockstep.Run        as Lockstep
-import           Test.Tasty                                     hiding (after)
-import           Test.Tasty.HUnit
-import           Test.Tasty.QuickCheck                          (testProperty)
-
 import           Database.LMDB.Raw
 import           Database.LMDB.Simple
 import           Database.LMDB.Simple.Cursor
 import           Database.LMDB.Simple.Internal
-
+import           Prelude hiding (init)
+import           System.Directory
+import           System.IO.Temp
 import           Test.Database.LMDB.Simple.Cursor.Lockstep.Mock
+import qualified Test.QuickCheck as QC
+import           Test.QuickCheck (Arbitrary, Gen, Property)
+import           Test.QuickCheck.StateModel
+import           Test.QuickCheck.StateModel.Lockstep as Lockstep
+import           Test.QuickCheck.StateModel.Lockstep.Defaults as Lockstep
+import           Test.QuickCheck.StateModel.Lockstep.Op.SumProd as Lockstep
+import           Test.QuickCheck.StateModel.Lockstep.Run as Lockstep
+import           Test.Tasty hiding (after)
+import           Test.Tasty.HUnit
+import           Test.Tasty.QuickCheck (testProperty)
 
 {-------------------------------------------------------------------------------
   Main test tree

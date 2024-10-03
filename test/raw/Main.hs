@@ -5,7 +5,7 @@
 module Main (main) where
 
 import           Control.Concurrent.Async
-import qualified Database.LMDB.FFI        as FFI
+import qualified Database.LMDB.FFI as FFI
 import           Database.LMDB.Raw
 import           Foreign
 import           Foreign.C

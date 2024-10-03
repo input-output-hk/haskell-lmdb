@@ -1,6 +1,6 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DataKinds          #-}
+{-# LANGUAGE DeriveAnyClass     #-}
+{-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
@@ -8,15 +8,14 @@
 
 module Main (main) where
 
-import Control.DeepSeq
-import Criterion.Main hiding (env)
-import Database.LMDB.Simple
-import Database.LMDB.Simple.Internal (Environment (..), Database (..))
-import Database.LMDB.Raw
-import GHC.Generics
-import Harness
-
-import Control.Monad (forM, forM_)
+import           Control.DeepSeq
+import           Control.Monad (forM, forM_)
+import           Criterion.Main hiding (env)
+import           Database.LMDB.Raw
+import           Database.LMDB.Simple
+import           Database.LMDB.Simple.Internal (Database (..), Environment (..))
+import           GHC.Generics
+import           Harness
 
 main :: IO ()
 main = defaultMain [

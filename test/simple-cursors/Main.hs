@@ -1,9 +1,8 @@
 module Main (main) where
 
-import           Test.Tasty
-
-import qualified Test.Database.LMDB.Simple.Cursor            as Test.Cursor
+import qualified Test.Database.LMDB.Simple.Cursor as Test.Cursor
 import qualified Test.Database.LMDB.Simple.TransactionHandle as Test.TransactionHandle
+import           Test.Tasty
 
 main :: IO ()
 main = defaultMain $ testGroup "test-cursors" [

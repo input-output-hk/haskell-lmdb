@@ -10,8 +10,8 @@ module Bench.Utils (
     -- * Environment types
     BenchEnv (..)
     -- * Initialisation and cleanup for environments
-  , initBenchEnv
   , cleanupBenchEnv
+  , initBenchEnv
     -- * Defaults for LMDB Limits
   , simpleLMDBLimits
     -- * Defaults for database population
@@ -20,8 +20,8 @@ module Bench.Utils (
     -- * Default types for keys and values
   , Key (..)
   , Value (..)
-  , keySize
   , key0
+  , keySize
   , pKey
   , pValue
   , valueSize
@@ -31,17 +31,15 @@ import           Codec.Serialise
 import           Control.DeepSeq
 import           Control.Monad
 import           Control.Monad.IO.Class
-import qualified Data.ByteString.Short         as B (ShortByteString, pack)
+import qualified Data.ByteString.Short as B (ShortByteString, pack)
 import           Data.Proxy
 import           Data.Word
-import           GHC.Generics                  (Generic)
-import           System.Directory
-import           System.IO.Temp
-
-import           Test.Tasty.QuickCheck
-
 import           Database.LMDB.Simple
 import qualified Database.LMDB.Simple.Internal as Internal (putNoOverwrite)
+import           GHC.Generics (Generic)
+import           System.Directory
+import           System.IO.Temp
+import           Test.Tasty.QuickCheck
 
 {-------------------------------------------------------------------------------
   Environment types

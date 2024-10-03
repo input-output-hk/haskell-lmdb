@@ -39,112 +39,130 @@
 -- * user-defined relocation functions
 -- * MDB_MULTIPLE is not currently supported (todo)
 --
-module Database.LMDB.Raw
-    ( LMDB_Version(..), lmdb_version, lmdb_dyn_version
-    , LMDB_Error(..), MDB_ErrCode(..)
-
-    , MDB_env
-    , MDB_dbi, MDB_dbi'
-    , MDB_txn
-    , MDB_cursor, MDB_cursor'
-
-    , FFI.MDB_val(..)
-    , FFI.MDB_stat, FFI.ms_psize, FFI.ms_depth, FFI.ms_branch_pages, FFI.ms_leaf_pages, FFI.ms_overflow_pages, FFI.ms_entries
-    , FFI.MDB_envinfo, FFI.me_mapaddr, FFI.me_mapsize, FFI.me_last_pgno, FFI.me_last_txnid, FFI.me_maxreaders, FFI.me_numreaders
-    , FFI.MDB_cmp_func, FFI.wrapCmpFn
-    , MDB_EnvFlag(..), MDB_DbFlag(..)
-    , MDB_cursor_op(..)
-
-    , MDB_WriteFlag(..), MDB_WriteFlags, compileWriteFlags
-    --, MDB_cursor_op(..)
-
+module Database.LMDB.Raw (
+    LMDB_Error (..)
+  , LMDB_Version (..)
+  , MDB_ErrCode (..)
+  , lmdb_dyn_version
+  , lmdb_version
+  , MDB_cursor
+  , MDB_cursor'
+  , MDB_dbi
+  , MDB_dbi'
+  , MDB_env
+  , MDB_txn
+  , FFI.MDB_cmp_func
+  , FFI.MDB_envinfo
+  , FFI.MDB_stat
+  , FFI.MDB_val (..)
+  , FFI.me_last_pgno
+  , FFI.me_last_txnid
+  , FFI.me_mapaddr
+  , FFI.me_mapsize
+  , FFI.me_maxreaders
+  , FFI.me_numreaders
+  , FFI.ms_branch_pages
+  , FFI.ms_depth
+  , FFI.ms_entries
+  , FFI.ms_leaf_pages
+  , FFI.ms_overflow_pages
+  , FFI.ms_psize
+  , FFI.wrapCmpFn
+  , MDB_DbFlag (..)
+  , MDB_EnvFlag (..)
+  , MDB_cursor_op (..)
+  , MDB_WriteFlag (..)
+  , MDB_WriteFlags
+  , compileWriteFlags
     -- * Environment Operations
-    , mdb_env_create
-    , mdb_env_open
-    , mdb_env_copy
-    , mdb_env_stat
-    , mdb_env_info
-    , mdb_env_sync, mdb_env_sync_flush
-    , mdb_env_close
-    , mdb_env_set_flags, mdb_env_unset_flags
-    , mdb_env_get_flags
-    , mdb_env_get_path
-    , mdb_env_set_mapsize
-    , mdb_env_set_maxreaders
-    , mdb_env_get_maxreaders
-    , mdb_env_set_maxdbs
-    , mdb_env_get_maxkeysize
-
+  , mdb_env_close
+  , mdb_env_copy
+  , mdb_env_create
+  , mdb_env_get_flags
+  , mdb_env_get_maxkeysize
+  , mdb_env_get_maxreaders
+  , mdb_env_get_path
+  , mdb_env_info
+  , mdb_env_open
+  , mdb_env_set_flags
+  , mdb_env_set_mapsize
+  , mdb_env_set_maxdbs
+  , mdb_env_set_maxreaders
+  , mdb_env_stat
+  , mdb_env_sync
+  , mdb_env_sync_flush
+  , mdb_env_unset_flags
     -- * Transactions
-    , mdb_txn_begin
-    , mdb_txn_env
-    , mdb_txn_commit
-    , mdb_txn_abort
-
+  , mdb_txn_abort
+  , mdb_txn_begin
+  , mdb_txn_commit
+  , mdb_txn_env
     -- * Databases
-    , mdb_dbi_open
-    , mdb_stat
-    , mdb_dbi_flags
-    , mdb_dbi_close
-    , mdb_drop, mdb_clear
-    , mdb_set_compare
-    , mdb_set_dupsort
-
-    , mdb_dbi_open'
-    , mdb_stat'
-    , mdb_dbi_flags'
-    , mdb_dbi_close'
-    , mdb_drop', mdb_clear'
-
+  , mdb_clear
+  , mdb_dbi_close
+  , mdb_dbi_flags
+  , mdb_dbi_open
+  , mdb_drop
+  , mdb_set_compare
+  , mdb_set_dupsort
+  , mdb_stat
+  , mdb_clear'
+  , mdb_dbi_close'
+  , mdb_dbi_flags'
+  , mdb_dbi_open'
+  , mdb_drop'
+  , mdb_stat'
     -- * Basic Key-Value Access
-    , mdb_get, mdb_put, mdb_del, mdb_reserve
-    , mdb_get', mdb_put', mdb_del', mdb_reserve'
-
+  , mdb_del
+  , mdb_del'
+  , mdb_get
+  , mdb_get'
+  , mdb_put
+  , mdb_put'
+  , mdb_reserve
+  , mdb_reserve'
     -- * Database key and value Comparisons
-    , mdb_cmp, mdb_dcmp
-    , mdb_cmp', mdb_dcmp'
-
+  , mdb_cmp
+  , mdb_cmp'
+  , mdb_dcmp
+  , mdb_dcmp'
     -- * Cursors
-    , mdb_cursor_open
-    , mdb_cursor_get
-    , mdb_cursor_put
-    , mdb_cursor_put_ptr
-    , mdb_cursor_del
-    , mdb_cursor_close
-    , mdb_cursor_txn
-    , mdb_cursor_dbi
-    , mdb_cursor_count
-
-    , mdb_cursor_open'
-    , mdb_cursor_get'
-    , mdb_cursor_put'
-    , mdb_cursor_put_ptr'
-    , mdb_cursor_del'
-    , mdb_cursor_close'
-    , mdb_cursor_txn'
-    , mdb_cursor_dbi'
-    , mdb_cursor_count'
-
+  , mdb_cursor_close
+  , mdb_cursor_count
+  , mdb_cursor_dbi
+  , mdb_cursor_del
+  , mdb_cursor_get
+  , mdb_cursor_open
+  , mdb_cursor_put
+  , mdb_cursor_put_ptr
+  , mdb_cursor_txn
+  , mdb_cursor_close'
+  , mdb_cursor_count'
+  , mdb_cursor_dbi'
+  , mdb_cursor_del'
+  , mdb_cursor_get'
+  , mdb_cursor_open'
+  , mdb_cursor_put'
+  , mdb_cursor_put_ptr'
+  , mdb_cursor_txn'
     -- * Misc
-    , mdb_reader_list
-    , mdb_reader_check
-
-    , mdb_txn_reset
-    , mdb_txn_renew
-
-    , withKVPtrs
-    , withKVOptPtrs
-    ) where
+  , mdb_reader_check
+  , mdb_reader_list
+  , mdb_txn_renew
+  , mdb_txn_reset
+  , withKVOptPtrs
+  , withKVPtrs
+  ) where
 
 import           Control.Concurrent
 import           Control.Exception
 import           Control.Monad
-import           Data.Function      (on)
+import           Data.Function (on)
 import           Data.IORef
-import qualified Data.List          as L
-import           Data.Maybe         (isNothing)
+import qualified Data.List as L
+import           Data.Maybe (isNothing)
 import           Data.Typeable
-import qualified Database.LMDB.FFI  as FFI
+import qualified Database.LMDB.FFI as FFI
 import           Foreign
 import           Foreign.C
 

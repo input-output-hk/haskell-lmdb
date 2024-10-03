@@ -9,20 +9,17 @@
 
 module Bench.Database.LMDB.Simple.Cursor (benchmarks) where
 
+import           Bench.Utils
 import           Codec.Serialise
-import           Data.Map.Strict             (Map)
-import qualified Data.Map.Strict             as Map
-import           Text.Printf
-
+import           Data.Map.Strict (Map)
+import qualified Data.Map.Strict as Map
+import           Database.LMDB.Simple
+import           Database.LMDB.Simple.Cursor
 import           Test.QuickCheck.Monadic
 import           Test.Tasty
 import           Test.Tasty.Bench
-import           Test.Tasty.QuickCheck       hiding (mapSize)
-
-import           Database.LMDB.Simple
-import           Database.LMDB.Simple.Cursor
-
-import           Bench.Utils
+import           Test.Tasty.QuickCheck hiding (mapSize)
+import           Text.Printf
 
 benchmarks :: Benchmark
 benchmarks = bgroup "Cursor" [

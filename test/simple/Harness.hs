@@ -1,13 +1,13 @@
 {-# LANGUAGE DataKinds #-}
 
-module Harness
-  ( setup
+module Harness (
+    setup
   , tearDown
   ) where
 
-import Database.LMDB.Simple
-import System.Directory
-import System.IO.Temp
+import           Database.LMDB.Simple
+import           System.Directory
+import           System.IO.Temp
 
 setup :: String -> IO (Environment ReadWrite, Database Int String, FilePath)
 setup name = do
