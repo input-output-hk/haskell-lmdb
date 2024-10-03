@@ -20,7 +20,7 @@ license:         BSD-2-Clause
 license-file:    LICENSE
 stability:       experimental
 build-type:      Simple
-tested-with:     GHC ==8.10 || ==9.2 || ==9.4 || ==9.6 || ==9.8
+tested-with:     GHC ==8.10 || ==9.2 || ==9.4 || ==9.6 || ==9.8 || ==9.10
 extra-doc-files:
   CHANGELOG.md
   INPUT-OUTPUT-FORK.md
@@ -42,7 +42,7 @@ library
   hs-source-dirs:   src
   default-language: Haskell2010
   build-depends:
-    , base              >=4.14 && <4.20
+    , base              >=4.14 && <4.21
     , cardano-lmdb:ffi
 
   exposed-modules:  Database.LMDB.Raw
@@ -52,7 +52,7 @@ library ffi
   visibility:         private
   hs-source-dirs:     src
   default-language:   Haskell2010
-  build-depends:      base >=4.14 && <4.20
+  build-depends:      base >=4.14 && <4.21
   build-tool-depends: hsc2hs:hsc2hs
   exposed-modules:    Database.LMDB.FFI
   pkgconfig-depends:  lmdb >=0.9 && <0.10
@@ -65,7 +65,7 @@ test-suite test
   main-is:          Main.hs
   build-depends:
     , async
-    , base              >=4.14 && <4.20
+    , base              >=4.14 && <4.21
     , cardano-lmdb
     , cardano-lmdb:ffi
     , tasty

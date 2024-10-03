@@ -1,3 +1,9 @@
+## next version — ????-??-??
+
+### Patch
+
+* Make it build with GHC `9.10`.
+
 ## 0.4.0.1 — 2024-04-05
 
 ### Patch
