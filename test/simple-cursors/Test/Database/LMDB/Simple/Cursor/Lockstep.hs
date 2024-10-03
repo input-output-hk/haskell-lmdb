@@ -366,13 +366,13 @@ arbitraryCursorAction _findVars (CursorState m _stats) = QC.oneof withoutVars
         genCursorGet' op = pure (Some $ CursorGet op )
 
         genCursorGetSet :: Gen (Any (Action (Lockstep (CursorState k v))))
-        genCursorGetSet = Some <$> (CursorGetSet <$> genKey)
+        genCursorGetSet = Some . CursorGetSet <$> genKey
 
         genCursorGetSetKey :: Gen (Any (Action (Lockstep (CursorState k v))))
-        genCursorGetSetKey = Some <$> (CursorGetSetKey <$> genKey)
+        genCursorGetSetKey = Some . CursorGetSetKey <$> genKey
 
         genCursorGetSetRange :: Gen (Any (Action (Lockstep (CursorState k v))))
-        genCursorGetSetRange = Some <$> (CursorGetSetRange <$> genKey)
+        genCursorGetSetRange = Some . CursorGetSetRange <$> genKey
 
     genCursorPut :: Gen (Any (Action (Lockstep (CursorState k v))))
     genCursorPut = QC.oneof [

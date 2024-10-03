@@ -492,7 +492,7 @@ mdb_env_create :: IO MDB_env
 mdb_env_create = alloca $ \ ppEnv ->
     lmdb_validate_version_match >>
     FFI.mdb_env_create ppEnv >>= \ rc ->
-    if (0 /= rc) then _throwLMDBErrNum "mdb_env_create" rc else
+    if 0 /= rc then _throwLMDBErrNum "mdb_env_create" rc else
     MDB_env <$> peek ppEnv <*> newEmptyMVar
 
 
@@ -562,7 +562,7 @@ mdb_env_stat :: MDB_env -> IO FFI.MDB_stat
 mdb_env_stat env =
     alloca $ \ pStats ->
         FFI.mdb_env_stat (_env_ptr env) pStats >>= \ rc ->
-        if (0 == rc) then peek pStats else
+        if 0 == rc then peek pStats else
         _throwLMDBErrNum "mdb_env_stat" rc
 
 -- | obtain ad-hoc information about the environment.
@@ -570,7 +570,7 @@ mdb_env_info :: MDB_env -> IO FFI.MDB_envinfo
 mdb_env_info env =
     alloca $ \ pInfo ->
         FFI.mdb_env_info (_env_ptr env) pInfo >>= \ rc ->
-        if (0 == rc) then peek pInfo else
+        if 0 == rc then peek pInfo else
         _throwLMDBErrNum "mdb_env_info" rc
 
 -- | Initiate synchronization of environment with disk. However, if
@@ -611,14 +611,14 @@ mdb_env_get_flags env = decompileEnvFlags <$> mdb_env_get_flags_u env
 mdb_env_get_flags_u :: MDB_env -> IO CUInt
 mdb_env_get_flags_u env = alloca $ \ pFlags ->
     FFI.mdb_env_get_flags (_env_ptr env) pFlags >>= \ rc ->
-    if (0 == rc) then peek pFlags else
+    if 0 == rc then peek pFlags else
     _throwLMDBErrNum "mdb_env_get_flags" rc
 
 -- | Obtain filesystem path for this environment.
 mdb_env_get_path :: MDB_env -> IO FilePath
 mdb_env_get_path env = alloca $ \ pPathStr ->
     FFI.mdb_env_get_path (_env_ptr env) pPathStr >>= \ rc ->
-    if (0 == rc) then peekCString =<< peek pPathStr else
+    if 0 == rc then peekCString =<< peek pPathStr else
     _throwLMDBErrNum "mdb_env_get_path" rc
 
 -- | Set the memory map size, in bytes, for this environment. This
@@ -647,7 +647,7 @@ mdb_env_set_maxreaders env nReaders =
 mdb_env_get_maxreaders :: MDB_env -> IO Int
 mdb_env_get_maxreaders env = alloca $ \ pCount ->
     FFI.mdb_env_get_maxreaders (_env_ptr env) pCount >>= \ rc ->
-    if (0 == rc) then fromIntegral <$> _peekCUInt pCount else
+    if 0 == rc then fromIntegral <$> _peekCUInt pCount else
     _throwLMDBErrNum "mdb_env_get_maxreaders" rc
 
 -- | Set the maximum number of named databases. LMDB is designed to
@@ -667,7 +667,7 @@ mdb_reader_check :: MDB_env -> IO Int
 mdb_reader_check env =
     alloca $ \ pCount ->
     FFI.mdb_reader_check (_env_ptr env) pCount >>= \ rc ->
-    if (0 == rc) then fromIntegral <$> _peekCInt pCount else
+    if 0 == rc then fromIntegral <$> _peekCInt pCount else
     _throwLMDBErrNum "mdb_reader_check" rc
 
 -- | Dump entries from reader lock table (for human consumption)
@@ -682,7 +682,7 @@ mdb_reader_list env =
     withMsgFunc onMsg $ \ pMsgFunc ->
     FFI.mdb_reader_list (_env_ptr env) pMsgFunc nullPtr >>= \ rc ->
     let toMsg = L.foldl (flip (++)) [] in
-    if (0 == rc) then toMsg <$> readIORef rf else
+    if 0 == rc then toMsg <$> readIORef rf else
     _throwLMDBErrNum "mdb_reader_list" rc
 
 withMsgFunc :: FFI.MDB_msg_func -> (FunPtr FFI.MDB_msg_func -> IO a) -> IO a
@@ -721,7 +721,7 @@ mdb_txn_begin env parent bReadOnly = mask_ $
     in
     alloca $ \ ppChildTxn ->
         FFI.mdb_txn_begin pEnv pParent iFlags ppChildTxn >>= \ rc ->
-        if (0 /= rc) then onFailure rc else
+        if 0 /= rc then onFailure rc else
         peek ppChildTxn >>= \ pChildTxn ->
         return $! MDB_txn { _txn_ptr = pChildTxn
                           , _txn_env = env
@@ -759,12 +759,12 @@ _lockEnv env = do
     putMVar (_env_wlock env) tid
   where
     isUnlockedEnv = hasFlag FFI.mdbNolock <$> mdb_env_get_flags_u env
-    hasFlag f fs = (f == (f .&. fs))
+    hasFlag f fs = f == (f .&. fs)
     getA <||> getB = getA >>= \ a -> if a then return True else getB
 
 _unlockEnv env =
     myThreadId >>= \ self ->
-    let m = (_env_wlock env) in
+    let m = _env_wlock env in
     mask_ $
         takeMVar m >>= \ owner ->
         unless (self == owner) $
@@ -779,7 +779,7 @@ _unlockEnv env =
 -- twice, which can lead to segfaults.
 _canUnlockEnv env =
     myThreadId >>= \ self ->
-    let m = (_env_wlock env) in
+    let m = _env_wlock env in
     tryReadMVar m >>= \ mowner ->
         unless (Just self == mowner) $
             throwIO _unlockErr
@@ -896,25 +896,25 @@ mdb_dbi_open_t txn dbName flags = -- use string name
     alloca $ \ pDBI ->
     withCStringMaybe dbName $ \ cdbName ->
     FFI.mdb_dbi_open (_txn_ptr txn) cdbName cdbFlags pDBI >>= \ rc ->
-    if (0 == rc) then peek pDBI else
+    if 0 == rc then peek pDBI else
     _throwLMDBErrNum "mdb_dbi_open" rc
 
 mdb_stat_t :: MDB_txn -> FFI.MDB_dbi -> IO FFI.MDB_stat
 mdb_stat_t txn dbi =
     alloca $ \ pStat ->
     FFI.mdb_stat (_txn_ptr txn) dbi pStat >>= \ rc ->
-    if (0 == rc) then peek pStat else
+    if 0 == rc then peek pStat else
     _throwLMDBErrNum "mdb_stat" rc
 
 mdb_dbi_flags_t :: MDB_txn -> FFI.MDB_dbi -> IO [MDB_DbFlag]
 mdb_dbi_flags_t txn dbi =
     alloca $ \ pFlags ->
     FFI.mdb_dbi_flags (_txn_ptr txn) dbi pFlags >>= \ rc ->
-    if (0 == rc) then decompileDBFlags <$> peek pFlags else
+    if 0 == rc then decompileDBFlags <$> peek pFlags else
     _throwLMDBErrNum "mdb_dbi_flags" rc
 
 mdb_dbi_close_t :: MDB_env -> FFI.MDB_dbi -> IO ()
-mdb_dbi_close_t env dbi = FFI.mdb_dbi_close (_env_ptr env) dbi
+mdb_dbi_close_t env = FFI.mdb_dbi_close (_env_ptr env)
 
 mdb_drop_t :: MDB_txn -> FFI.MDB_dbi -> IO ()
 mdb_drop_t txn dbi =
@@ -951,10 +951,10 @@ mdb_get txn dbi key =
 {-# INLINE mdb_get #-}
 
 r_get :: CInt -> Ptr FFI.MDB_val -> IO (Maybe FFI.MDB_val)
-r_get rc pVal =
-    if (0 == rc) then Just <$> peek pVal else
-    if (FFI.mdbNotfound == rc) then return Nothing else
-    _throwLMDBErrNum "mdb_get" rc
+r_get rc pVal
+    | 0 == rc = Just <$> peek pVal
+    | FFI.mdbNotfound == rc = return Nothing
+    | otherwise = _throwLMDBErrNum "mdb_get" rc
 {-# INLINE r_get #-}
 
 -- | utility function: prepare pointers suitable for mdb_cursor_get.
@@ -986,10 +986,10 @@ mdb_put wf txn dbi key val =
 {-# INLINE mdb_put #-}
 
 r_put :: CInt -> IO Bool
-r_put rc =
-    if (0 == rc) then return True else
-    if (FFI.mdbKeyexist == rc) then return False else
-    _throwLMDBErrNum "mdb_put" rc
+r_put rc
+    | 0 == rc = return True
+    | FFI.mdbKeyexist == rc = return False
+    | otherwise = _throwLMDBErrNum "mdb_put" rc
 {-# INLINE r_put #-}
 
 -- | Allocate space for data under a given key. This space must be
@@ -1004,7 +1004,7 @@ mdb_reserve :: MDB_WriteFlags -> MDB_txn -> MDB_dbi -> FFI.MDB_val -> Int -> IO 
 mdb_reserve wf txn dbi key szBytes =
     withKVPtrs key (reserveData szBytes) $ \ pKey pVal ->
     FFI.mdb_put (_txn_ptr txn) (_dbi dbi) pKey pVal (unWriteFlags $ wfReserve wf) >>= \ rc ->
-    if (0 == rc) then peek pVal else
+    if 0 == rc then peek pVal else
     _throwLMDBErrNum "mdb_reserve" rc
 {-# INLINE mdb_reserve #-}
 
@@ -1029,10 +1029,10 @@ mdb_del txn dbi key mbVal =
 {-# INLINE mdb_del #-}
 
 r_del :: CInt -> IO Bool
-r_del rc =
-    if (0 == rc) then return True else
-    if (FFI.mdbNotfound == rc) then return False else
-    _throwLMDBErrNum "mdb_del" rc
+r_del rc
+    | 0 == rc = return True
+    | FFI.mdbNotfound == rc = return False
+    | otherwise = _throwLMDBErrNum "mdb_del" rc
 {-# INLINE r_del #-}
 
 mdb_get' :: MDB_txn -> MDB_dbi' -> FFI.MDB_val -> IO (Maybe FFI.MDB_val)
@@ -1053,7 +1053,7 @@ mdb_reserve' :: MDB_WriteFlags -> MDB_txn -> MDB_dbi' -> FFI.MDB_val -> Int -> I
 mdb_reserve' wf txn dbi key szBytes =
     withKVPtrs key (reserveData szBytes) $ \ pKey pVal ->
     FFI.mdb_put' (_txn_ptr txn) (_dbi' dbi) pKey pVal (unWriteFlags $ wfReserve wf) >>= \ rc ->
-    if (0 == rc) then peek pVal else
+    if 0 == rc then peek pVal else
     _throwLMDBErrNum "mdb_reserve" rc
 {-# INLINE mdb_reserve' #-}
 
@@ -1099,7 +1099,7 @@ mdb_cursor_open :: MDB_txn -> MDB_dbi -> IO MDB_cursor
 mdb_cursor_open txn dbi =
     alloca $ \ ppCursor ->
     FFI.mdb_cursor_open (_txn_ptr txn) (_dbi dbi) ppCursor >>= \ rc ->
-    if (0 /= rc) then _throwLMDBErrNum "mdb_cursor_open" rc else
+    if 0 /= rc then _throwLMDBErrNum "mdb_cursor_open" rc else
     peek ppCursor >>= \ pCursor ->
     return $! MDB_cursor
         { _crs_ptr = pCursor
@@ -1111,7 +1111,7 @@ mdb_cursor_open' :: MDB_txn -> MDB_dbi' -> IO MDB_cursor'
 mdb_cursor_open' txn dbi =
     alloca $ \ ppCursor ->
     FFI.mdb_cursor_open' (_txn_ptr txn) (_dbi' dbi) ppCursor >>= \ rc ->
-    if (0 /= rc) then _throwLMDBErrNum "mdb_cursor_open" rc else
+    if 0 /= rc then _throwLMDBErrNum "mdb_cursor_open" rc else
     peek ppCursor >>= \ pCursor ->
     return $! MDB_cursor'
         { _crs_ptr' = pCursor
@@ -1134,10 +1134,10 @@ mdb_cursor_get op crs pKey pData = FFI.mdb_cursor_get (_crs_ptr crs) pKey pData 
 {-# INLINE mdb_cursor_get #-}
 
 r_cursor_get :: CInt -> IO Bool
-r_cursor_get rc =
-    if(0 == rc) then return True else
-    if(FFI.mdbNotfound == rc) then return False else
-    _throwLMDBErrNum "mdb_cursor_get" rc
+r_cursor_get rc
+    | 0 == rc = return True
+    | FFI.mdbNotfound == rc = return False
+    | otherwise = _throwLMDBErrNum "mdb_cursor_get" rc
 {-# INLINE r_cursor_get #-}
 
 mdb_cursor_get' :: MDB_cursor_op -> MDB_cursor' -> Ptr FFI.MDB_val -> Ptr FFI.MDB_val -> IO Bool
@@ -1156,10 +1156,10 @@ mdb_cursor_put wf crs key val = withKVPtrs key val $ \pKey pVal -> mdb_cursor_pu
 {-# INLINE mdb_cursor_put #-}
 
 r_cursor_put :: CInt -> IO Bool
-r_cursor_put rc =
-    if(0 == rc) then return True else
-    if(FFI.mdbKeyexist == rc) then return False else
-    _throwLMDBErrNum "mdb_cursor_put" rc
+r_cursor_put rc
+    | 0 == rc = return True
+    | FFI.mdbKeyexist == rc = return False
+    | otherwise = _throwLMDBErrNum "mdb_cursor_put" rc
 {-# INLINE r_cursor_put #-}
 
 mdb_cursor_put' :: MDB_WriteFlags -> MDB_cursor' -> FFI.MDB_val -> FFI.MDB_val -> IO Bool
@@ -1216,7 +1216,7 @@ mdb_cursor_count :: MDB_cursor -> IO Int
 mdb_cursor_count crs =
     alloca $ \ pCount ->
     FFI.mdb_cursor_count (_crs_ptr crs) pCount >>= \ rc ->
-    if (0 == rc) then fromIntegral <$> _peekSize pCount else
+    if 0 == rc then fromIntegral <$> _peekSize pCount else
     _throwLMDBErrNum "mdb_cursor_count" rc
 {-# INLINE mdb_cursor_count #-}
 
@@ -1227,7 +1227,7 @@ mdb_cursor_count' :: MDB_cursor' -> IO Int
 mdb_cursor_count' crs =
     alloca $ \ pCount ->
     FFI.mdb_cursor_count' (_crs_ptr' crs) pCount >>= \ rc ->
-    if (0 == rc) then fromIntegral <$> _peekSize pCount else
+    if 0 == rc then fromIntegral <$> _peekSize pCount else
     _throwLMDBErrNum "mdb_cursor_count" rc
 {-# INLINE mdb_cursor_count' #-}
 

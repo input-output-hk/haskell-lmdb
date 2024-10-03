@@ -70,7 +70,7 @@ test_cgetMany bEnv k n =
 
 -- | Generate a benchmark name given the inputs to the benchmark.
 name_cgetMany :: BenchEnv k v -> k -> Int -> String
-name_cgetMany _bEnv _k n = printf "n=%d" n
+name_cgetMany _bEnv _k = printf "n=%d"
 
 -- | Run a @'cgetMany'@ cursor transaction.
 perform_cgetMany ::

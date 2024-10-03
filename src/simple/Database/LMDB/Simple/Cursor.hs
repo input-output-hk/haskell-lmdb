@@ -60,7 +60,7 @@ module Database.LMDB.Simple.Cursor (
   ) where
 
 import           Codec.Serialise
-import           Control.Monad                 (foldM, void)
+import           Control.Monad                 (foldM, void, when)
 import           Control.Monad.Catch           (MonadCatch, MonadThrow)
 import           Control.Monad.IO.Class        (MonadIO (..))
 import           Control.Monad.Reader          (MonadReader (..), ReaderT (..),
@@ -418,7 +418,7 @@ compileCDelFlag = compileWriteFlags . toList . fmap fromCDelFlag
 cdelG :: CursorConstraints m k v ReadWrite => Maybe CDelFlag -> m ReadWrite ()
 cdelG flag = do
   r <- ask
-  if cursorKPtr r == nullPtr then error "e" else pure ()
+  when (cursorKPtr r == nullPtr) $ error "e"
   liftIO $ mdb_cursor_del' (compileCDelFlag flag) (theCursor r)
 
 cdel :: CursorConstraints m k v ReadWrite => m ReadWrite ()
