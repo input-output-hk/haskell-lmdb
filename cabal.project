@@ -1,7 +1,7 @@
 index-state:
   -- Bump this if you need newer packages from Hackage
   -- current date: put reason of current date here
-  , hackage.haskell.org 2024-08-15T18:30:21Z
+  , hackage.haskell.org 2024-08-27T14:57:57Z
 
 packages:
   .
